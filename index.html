@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<title>Geocode</title>
+</head>
+<body>
+
+	<div class="container">
+
+	<h2 class="text-center">Location Info</h2>
+
+	<form id="location-form">
+
+		<input type="text" id="location-input" class="form-control form-control-lg">
+
+		<br>
+
+		<button type="submit" class="btn btn-primary btn-block">Submit</button>
+		
+	</form>
+
+    
+	<div class="card-block" id="formatted-address"></div>
+	<div class="card-block" id="formatted-component"></div>
+	<div class="card-block" id="geometry"></div>
+</div>
+		
+	
+
+
+
+<script>
+
+
+   let locationForm = document.getElementById('location-form');
+
+   locationForm.addEventListener('submit',geocode);
+ 
+function geocode(e){
+
+	e.preventDefault();
+
+	let location = document.getElementById('location-input').value;
+
+	axios.get('https://maps.googleapis.com/maps/api/geocode/json',{
+
+		params : {
+
+			address : location,
+
+			key : 'AIzaSyCsx3rQzRdEJ7VTVRHvAPcPZFI2Tn2nUys'
+
+		}
+	})
+
+	 .then(function (response) {
+    console.log(response);
+
+    let formattedAddress = response.data.results[0].formatted_address;
+
+    let formattedAddressOutput = `
+
+     <ul class="list-group">
+
+     <li class="list-group-item">${formattedAddress}</li>
+     </ul>
+    `;
+
+    let addressComponents = response.data.results[0].address_components;
+
+    let addressComponentsOutput = '<ul class="list-group">';
+
+    for(let i =0; i<addressComponents.length; i++){
+     
+     addressComponentsOutput+=`
+      <li class="list-group-item"><strong>${addressComponents[i].types[0]}</strong>:${addressComponents[i].long_name}</li>
+     `;
+
+    }
+
+    addressComponentsOutput+='</ul>'
+
+
+
+    let lat = response.data.results[0].geometry.location.lat;
+     let lng = response.data.results[0].geometry.location.lng;
+
+    let geometryOutput = `
+
+     <ul class="list-group">
+
+     <li class="list-group-item"><strong>Latitude</strong>:${lat}</li>
+     <li class="list-group-item"><strong>Longitude</strong>:${lng}</li>
+     </ul>
+    `;
+
+
+
+    document.getElementById('formatted-address').innerHTML= formattedAddressOutput;
+
+    document.getElementById('formatted-component').innerHTML= addressComponentsOutput;
+
+    document.getElementById('geometry').innerHTML= geometryOutput;
+
+
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
+
+}
+
+</script>	
+	
+</body>
+</html>
